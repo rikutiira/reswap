@@ -29,21 +29,24 @@ Reswap aims to be simple yet scalable.
  */
 import { create, reducer, combine } from 'reswap'
 
+const addTodo = (currentState, todo) => currentState.concat(todo)
+const deleteTodos = (currentState, deletableTodos) => {
+    const todos = [].concat(deletableTodos)
+    return currentState.filter((todo) => todos.indexOf(todo.id) === -1)
+}
+
 //simply use object literals for application state
 const store = {
     todos: create([], //give initial value to your store
         //use reducer to listen to observable source, todos are added to store as it emits new values
-        reducer('todosFromServer', serverTodos$, (currentState, todo) => currentState.concat(todo)),
+        reducer('todosFromServer', serverTodos$, addTodo),
 
         //you can push data to reducer with no observable source as shown in consumer.js
-        reducer('todosFromClient', (currentState, todo) => currentState.concat(todo)),
+        reducer('todosFromClient', addTodo),
 
         //you can omit the name if there is no need to observe or call the reducer from outside
         //also notice "merge" helper which can be used to listen to multiple observable sources
-        reducer(merge(deleteTodo$, deleteTodos$), (currentState, deletableTodos) => {
-            const todos = [].concat(deletableTodos)
-            return currentState.filter((todo) => todos.indexOf(todo.id) === -1)
-        })
+        reducer(merge(deleteTodo$, deleteTodos$), deleteTodos)
     )
 }
 
