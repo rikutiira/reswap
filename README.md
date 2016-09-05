@@ -30,8 +30,10 @@ const store = {
     todos: create([], //give initial value to your store
         //use reducer to listen to observable source, todos are added to store as it emits new values
         reducer('newTodosFromServer', todosFromServer$, (currentState, todo) => currentState.concat(todo)),
+
         //you can push data to reducer with no observable source as shown in consumer.js
-        reducer('newTodosFromClient', (currentState, todo) => currentState.concat(todo)).
+        reducer('newTodosFromClient', (currentState, todo) => currentState.concat(todo)),
+
         //you can omit the name if there is no need to observe or call the reducer from outside
         //also notice "merge" helper which can be used to listen to multiple observable sources
         reducer(merge(deleteTodo$, deleteTodos$), (currentState, deletableTodos) => {
