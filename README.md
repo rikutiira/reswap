@@ -44,7 +44,9 @@ const store = {
 }
 
 export default store
+```
 
+```js
 /**
  * consumer.js
  */
