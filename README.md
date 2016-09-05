@@ -1,6 +1,6 @@
 # Reswap
 
-### Reswap is still in early development, 0.1.0 is not a stable release yet!
+### Reswap is still in early development, 0.1.x is not a stable release yet!
 
 **Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
