@@ -18,7 +18,7 @@ Reswap aims to be simple yet scalable.
 - **Works with existing FRP libraries out of the box**, such as Kefir, RXJS and Most. Other FRP libraries are also interoperable with small amount of glue code.
 - **Focus on immutable data** but since JavaScript has no immutable API, it is not enforced and works with mutable state as well.
 - **Debug mode** which will tell if you are accidentally mutating data in your reducers.
-- **No mandatory actions**, the idea is to have as little boilerplate as possible. A lot of actions are not generic, and there is necessarily no need to treat them as such. However, reactive actions are supported as well, and their API is nearly identical to creating observable stores. Use as many actions as you think it makes sense for your codebase.
+- **No mandatory actions**, the idea is to have as little boilerplate as possible. A lot of actions are not generic, and there is necessarily no need to treat them as such. However, reactive actions are supported as well, and their API is nearly identical to creating observable stores. Use as many actions as you think makes sense for your application.
 - **Application state** is easily built from multiple reactive stores, and it scales better and is easier to optimize than a single-store approach, still giving all the same benefits due to being built on observables. Your reactive stores can be as large or as small as you want to.
 
 ## How it looks
