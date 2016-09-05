@@ -2,7 +2,9 @@
 
 ### Rewrap is still in early development, 0.1.0 is not a stable release yet!
 
-Reswap is a fully reactive state container built on the current observable proposal. It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms. Other popular JavaScript state containers have comparably a lot of boilerplate compared to elegance of Reagent or are dependent on reacting to mutable objects, which comes with a lot of incidental complexity and error-prone code. Rewrap believes in the predictable model made popular by Redux but wants to further simplify it by having a simpler API, providing first-party support to observables and existing FRP libraries, removing the need for imperative dispatch and replacing large switch-statement centered reducers with smaller, simpler, reactive ones.
+Reswap is a fully reactive state container built on the current observable proposal. It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
+
+Current popular JavaScript state containers have comparably a lot of boilerplate or are dependent on reacting to mutable objects. Rewrap aims to be simple yet scalable. It offers a simple reactive API which isn't built on need to mutate objects, as mutation introduces incidental complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. Rewrap follows the predictable model made popular by Redux but aims to further simplify it by having less boilerplate, a smaller API, providing first-party support to observables and existing FRP libraries, removing the need for imperative dispatch and replacing large switch-statement centered reducers with smaller, reactive ones.
 
 ## Library features
 - **Simple API** which gives your program just enough structure but gives freedom to choose the architecture around it.
