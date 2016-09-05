@@ -56,12 +56,12 @@ export default store
  */
 import store from './store'
 
-//subscribe to store, instantly getting current value and get new values as store is updated
+//subscribe to store, instantly getting current state and get new states as store is updated
 store.subscribe({
-    next: (value) => console.log(value)
+    next: (state) => console.log(state)
 })
 
-//you can also directly subscribe to a specific reducer (which has no current value)
+//you can also directly subscribe to a specific reducer (which has no current state)
 //can be useful for reducer specific side-effects
 store.reducers.todosFromServer.subscribe({
     next: (value) => console.log('value from server')
