@@ -2,7 +2,7 @@
 
 ### Reswap is still in early development, 0.1.0 is not a stable release yet!
 
-**Reswap is a fully reactive state container built on the current observable proposal.** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
+**Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
 Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to make it simpler by reducing boilerplate, having smaller API and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any Reswap specific code.
 
