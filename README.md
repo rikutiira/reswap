@@ -6,7 +6,9 @@ Reswap is a fully reactive state container built on the current observable propo
 
 Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to make it simpler by reducing boilerplate, having smaller API and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any Reswap specific code.
 
-In that way it's inspired by other reactive libraries but with two major differences. One, it's built on asynchronous observables and supports existing FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces incidental complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. It just does not scale well, while Reswap aims to be simple yet scalable.
+In that way it's inspired by other reactive libraries but with two major differences. One, it's built on asynchronous observables and supports existing FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. It just does not necessarily scale well depending on the application.
+
+Reswap aims to be simple yet scalable.
 
 ## Library features
 - **Simple API** which gives your program just enough structure but gives freedom to choose the architecture around it.
