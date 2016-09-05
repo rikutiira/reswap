@@ -29,10 +29,10 @@ import { create, reducer, combine } from 'reswap'
 const store = {
     todos: create([], //give initial value to your store
         //use reducer to listen to observable source, todos are added to store as it emits new values
-        reducer('newTodosFromServer', todosFromServer$, (currentState, todo) => currentState.concat(todo)),
+        reducer('todosFromServer', serverTodos$, (currentState, todo) => currentState.concat(todo)),
 
         //you can push data to reducer with no observable source as shown in consumer.js
-        reducer('newTodosFromClient', (currentState, todo) => currentState.concat(todo)),
+        reducer('todosFromClient', (currentState, todo) => currentState.concat(todo)),
 
         //you can omit the name if there is no need to observe or call the reducer from outside
         //also notice "merge" helper which can be used to listen to multiple observable sources
@@ -57,14 +57,14 @@ store.subscribe({
 
 //you can also directly subscribe to a specific reducer (which has no current value)
 //can be useful for reducer specific side-effects
-store.reducers.newTodosFromServer.subscribe({
+store.reducers.todosFromServer.subscribe({
     next: (value) => console.log('value from server')
 })
 
 //you can push data to non-observable reducers, useful when working with imperative APIs
 //this is equivalent to dispatch() calls in non-reactive flux implementations
-store.reducers.newTodosFromClient([{ id: 1, name: 'Todo from client' }])
+store.reducers.todosFromClient([{ id: 1, name: 'Todo from client' }])
 
 //you can also subscribe to a pushable reducer
-store.reducers.newTodosFromClient.subscribe(...)
+store.reducers.todosFromClient.subscribe(...)
 ```
