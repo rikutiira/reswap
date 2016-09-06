@@ -4,21 +4,21 @@
 
 **Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
-Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to make it simpler by reducing boilerplate, having smaller API and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any Reswap specific code.
+Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap.
 
-In that way it's inspired by other reactive libraries but with two important points. One, it's built on asynchronous observables and supports existing FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. It just does not necessarily scale well depending on the application.
+In that way it's inspired by other reactive state containers but with two important points. One, it's built on observable spec and supports existing FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. It does not necessarily scale.
 
 Reswap aims to be simple yet scalable.
 
 ## Library features
-- **Simple API** which gives your program just enough structure but gives freedom to choose the architecture around it.
-- **No imperative dispatch()**, all reducers are reactive. You can, however, also push data to reducer as convenience to work around imperative APIs and to reduce boilerplate.
-- **Reactive reducers** enable separation of concerns which many imperative libraries are not capable of. They are great for concurrent, asynchronous programs.
+- **Simple reactive API** which gives your program just enough structure but gives freedom to choose the architecture around it.
 - **Built on ECMAScript observable proposal**, will work with all Observable libraries supporting the spec.
+- **Stores are observables** holding state as their current value. The state can only be changed by reducers defined by the store.
+- **No imperative dispatch()**, or dispatch at all, to be exact. **Reducers are also built on observables**. You can, however, also push data to reducers directly as convenience to work with imperative APIs. Reactive reducers are great for programs dealing with concurrency and enable nice separation of concerns.
 - **Works with existing FRP libraries out of the box**, such as [Kefir](https://rpominov.github.io/kefir/), [RXJS](http://reactivex.io/) and [Most](https://github.com/cujojs/most). If it supports ES Observables, it works. Other FRP libraries are also interoperable with small amount of glue code.
 - **Focus on immutable data** but since JavaScript has no immutable API, it is not enforced and works with mutable state as well.
-- **Debug mode** which will tell if you are accidentally mutating data in your reducers.
-- **No mandatory actions**, the idea is to have as little boilerplate as possible. A lot of actions are not generic, and there is necessarily no need to treat them as such. However, reactive actions are supported as well, and their API is nearly identical to creating observable stores. Use as many actions as you think makes sense for your application.
+- **Debug mode** which will tell if you are accidentally mutating state in or out of your reducers.
+- **No mandatory actions**, the idea is to avoid unnecessary granular code and have as little boilerplate as possible. Actions make sense if you have multiple sources interested in some event, otherwise you can just directly update your store. This usually means having multiple stores listening to an action or wanting side-effects as reactions to actions. Reswap comes with a simple helper for creating actions. Much like stores, they are simply observables which you can push values to.
 - **Application state** is easily built from multiple reactive stores, and it scales better and is easier to optimize than a single-store approach, still giving all the same benefits due to being built on observables. Your reactive stores can be as large or as small as you want to.
 
 ## How it looks
