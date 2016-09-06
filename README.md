@@ -53,7 +53,7 @@ const store = {
         //you can also create named reducers which you can push data directly to, as shown in consumer.js
         reducer('todosFromClient', reducers.addTodo),
 
-        //actions are simply observables, you can observe to them like all other observables
+        //actions are simply observables, you can observe them like any other observables
         reducer(actions.saveTodos$, reducers.saveTodos)
     )
 }
@@ -85,10 +85,10 @@ actions.saveTodos$(store.todos$.get())
 /**
  * reactions.js
  */
-
 import { actions } from './store'
 
-//logging as side-effect to an action
+//logging as side-effect to an action, it makes sense to have actions when you have
+//multiple subscribers
 actions.saveTodos$.subscribe({
     next: (todos) => log('saved todos', todos)
 })
