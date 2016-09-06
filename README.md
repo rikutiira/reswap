@@ -4,7 +4,7 @@
 
 **Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
-Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap, ECMAScript Observables or any other existing Observable library will do.
+Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap since ECMAScript Observables or any other existing Observable library will do.
 
 Being fully reactive, it's inspired by other reactive state containers but with two important points. One, as mentioned, it's built on observable spec and supports existing Observable/FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. Immutable values are easier to reason about and scale better.
 
@@ -60,14 +60,16 @@ const store = {
 
 export default store
 
-export { actions }
+export {
+    saveTodos$: actions.saveTodos$
+}
 ```
 
 ```js
 /**
  * consumer.js
  */
-import store, { actions } from './store'
+import store, { saveTodos$ } from './store'
 
 //subscribe to store, instantly getting current state and all subsequent states
 store.todos$.subscribe({
@@ -78,18 +80,18 @@ store.todos$.subscribe({
 store.reducers.todosFromClient({ id: 1, name: 'Todo from client', saved: false })
 
 //actions are observables which you can push data to by calling them.
-actions.saveTodos$(store.todos$.get())
+saveTodos$(store.todos$.get())
 ```
 
 ```js
 /**
  * reactions.js
  */
-import { actions } from './store'
+import { saveTodos$ } from './store'
 
 //logging as side-effect to an action, it makes sense to have actions when you have
 //multiple subscribers
-actions.saveTodos$.subscribe({
+saveTodos$.subscribe({
     next: (todos) => log('saved todos', todos)
 })
 ```
