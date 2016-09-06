@@ -28,9 +28,15 @@ Being fully reactive, it's inspired by other reactive state containers but with 
 import { store, reducer, action } from 'reswap'
 
 const actions = {
-    saveTodos$: action((todos) => todos.map((todo) =>
-        Object.assign({}, todo, { saved: true })
-    ))
+    saveTodos$: action((todos) =>
+        fetch('/api/save-todos/', { body: todos })
+            .then((response) => response.json())
+            .then((data) => todos.map((todo) =>
+                Object.assign({}, todo, {
+                    saved: data[todo.id].saved
+                })
+            ))
+    )
 }
 
 const reducers = {
@@ -54,7 +60,7 @@ const store = {
 
 export default store
 
-export actions
+export { actions }
 ```
 
 ```js
@@ -84,9 +90,9 @@ actions.saveTodos$(store.todos$.get())
 
 import { actions } from './store'
 
-//here we observe an action and send a server request whenever data is pushed into it
+//logging as side-effect to an action
 actions.saveTodos$.subscribe({
-    next: (todos) => fetch('/api/save-todos/', { body: todos })
+    next: (todos) => log('saved todos', todos)
 })
 ```
 
