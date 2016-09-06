@@ -14,7 +14,7 @@ Reswap aims to be simple yet scalable.
 - **Simple reactive API** which gives your program just enough structure but gives freedom to choose the architecture around it.
 - **Built on ECMAScript observable proposal**, will work with all Observable libraries supporting the spec.
 - **Stores are observables** holding state as their current value. The state can only be changed by reducers defined by the store.
-- **No imperative dispatch()**, or dispatch at all, to be exact. **Reducers are also built on observables**. You can, however, also push data to reducers directly as convenience to work with imperative APIs. Reactive reducers are great for programs dealing with concurrency and enable nice separation of concerns.
+- **No imperative dispatch()**, or dispatch at all, to be exact. **Reducers are also built on observables and update store through reacting to other observables**. You can, however, also push data to reducers directly as convenience to work with imperative APIs. Reactive reducers are great for programs dealing with concurrency and enable nice separation of concerns.
 - **Works with existing FRP libraries out of the box**, such as [Kefir](https://rpominov.github.io/kefir/), [RXJS](http://reactivex.io/) and [Most](https://github.com/cujojs/most). If it supports ES Observables, it works. Other FRP libraries are also interoperable with small amount of glue code.
 - **Focus on immutable data** but since JavaScript has no immutable API, it is not enforced and works with mutable state as well.
 - **Debug mode** which will tell if you are accidentally mutating state in or out of your reducers.
