@@ -4,11 +4,9 @@
 
 **Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
-Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap.
+Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap, ECMAScript Observables or any other existing Observable library will do.
 
-In that way it's inspired by other reactive state containers but with two important points. One, it's built on observable spec and supports existing FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. It does not necessarily scale.
-
-Reswap aims to be simple yet scalable.
+Being fully reactive, it's inspired by other reactive state containers but with two important points. One, as mentioned, it's built on observable spec and supports existing Observable/FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. Immutable values are easier to reason about and scale better.
 
 ## Library features
 - **Simple reactive API** which gives your program just enough structure but gives freedom to choose the architecture around it.
@@ -21,7 +19,7 @@ Reswap aims to be simple yet scalable.
 - **No mandatory actions**, the idea is to avoid unnecessary granular code and have as little boilerplate as possible. Actions make sense if you have multiple sources interested in any given event, otherwise you can just directly update your store. Wanting actions usually means having multiple interested stores or needing side-effects as reactions to said actions. Reswap actions are simply observables which you can push values to.
 - **Application state** is easily built from multiple reactive stores, and it scales better and is easier to optimize than a single-store approach, still giving all the same benefits due to being built on observables. Your reactive stores can be as large or as small as you want to.
 
-## How it looks
+## How it works
 
 ```js
 /**
@@ -75,7 +73,7 @@ store.todos$.subscribe({
 //you can push data to store via named reducers, useful when working with imperative APIs
 store.reducers.todosFromClient({ id: 1, name: 'Todo from client', saved: false })
 
-//actions are observables but also callable functions. you push data to actions and observe them elsewhere.
+//actions are observables which you can push data to by calling them.
 actions.saveTodos$(store.todos$.get())
 ```
 
