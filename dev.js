@@ -4,23 +4,27 @@ import reswap, { reducer, action, merge, combine } from './src'
 
 const assign = (...values) => Object.assign({}, ...values)
 
-const testObservable = new Observable(() => {})
-const testObservable2 = Kefir.sequentially(3000, ['bar', 'babar', 'babazbar'])
-const testObservable3 = Kefir.sequentially(4000, [1, 2, 3, 4, 5])
-
 const testAction = action((data) => data + 1)
-const testAction2 = action(testAction, (data) => data + 1)
+
+const testObservable = Kefir.sequentially(3000, ['bar', 'babar', 'babazbar'])
+const testObservable2 = Kefir.sequentially(4000, [1, 2, 3, 4, 5])
+const testObservable3 = new Observable((observer) => {
+    testAction.subscribe({
+        next: (value) => observer.next(value + 1)
+    })
+})
 
 //global config, possible adapters (Kefir, RXJS, etc)
 reswap.config({
+    debug: true,
     to: (observable) => Kefir.fromESObservable(observable), //all returned observables by reswap are automatically converted to kefir streams
 })
 
 const store = reswap.create({ foo: '', bar: { baz: '' }, plus1: 0, plus2: 0 },
     reducer('foo', (currentState, value, value2) => assign(currentState, { foo: currentState.foo + value + value2 })),
-    reducer('bar', combine([testObservable2, testObservable3]), (currentState, value) =>
+    reducer(combine([testObservable, testObservable2]), (currentState, value) =>
         assign(currentState, { bar: assign(currentState.bar, { baz: value }) })),
-    reducer(combine([testAction, testAction2]), (currentState, [plus1, plus2]) =>
+    reducer(combine([testAction, testObservable3]), (currentState, [plus1, plus2]) =>
         assign(currentState, { plus1, plus2 }))
 )
 

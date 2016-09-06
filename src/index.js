@@ -2,18 +2,12 @@ import symbolObservable from 'symbol-observable'
 import deepEqual from 'deep-equal'
 import Observable from 'zen-observable'
 
-const fromObservable = (observable) => isESObservable(observable) ? Observable.from(observable) : observable
-
 const configurables = {
   debug: false,
 
-  from(observable) {
-    return fromObservable(observable)
-  },
-  to(observable) {
-    return observable
-  },
-  withCallable(observable, callable) {
+  from: (observable) => isESObservable(observable) ? Observable.from(observable) : observable,
+  to: (observable) => observable,
+  withCallable: (observable, callable) => {
     let callableWithObservable = Object.assign(callable, observable)
     Object.setPrototypeOf(callableWithObservable, observable)
 
@@ -32,12 +26,21 @@ const first = (arr = []) => arr[0],
         obss.splice(obss.indexOf(remObs), 1)
         f()
       },
+      createStream = (observers) => new Observable((observer) => {
+        observers.push(observer)
+        return removeObserver(observers, observer)
+      }),
+      createProperty = (observers, currentValue) => new Observable((observer) => {
+        observers.push(observer)
+        observer.next(currentValue)
+        return removeObserver(observers, observer)
+      }),
       combineObservables = (observables) => {
         let observers = [],
             currentValues = new Map()
 
         observables.forEach((observable) => {
-          fromObservable(observable).subscribe({
+          configurables.from(observable).subscribe({
             next(value) {
               currentValues.set(observable, value)
 
@@ -51,11 +54,7 @@ const first = (arr = []) => arr[0],
           })
         })
 
-        return new Observable((observer) => {
-          observers.push(observer)
-
-          return removeObserver(observers, observer)
-        })
+        return createStream(observers)
       },
       mergeObservables = (observables) => {
         let observers = []
@@ -70,77 +69,60 @@ const first = (arr = []) => arr[0],
           })
         })
 
-        return new Observable((observer) => {
-          observers.push(observer)
-
-          return removeObserver(observers, observer)
-        })
+        return createStream(observers)
+      },
+      isMutable = (value) => Object(value) === value,
+      cloneDeep = (value) => {
+        if (isMutable(value)) {
+          let obj = {}
+          for (let key in value) {
+            obj[key] = cloneDeep(value[key])
+          }
+          return obj
+        }
+        return value
       }
 
 const create = (initialState, ...reducers) => {
   let storeState = initialState,
       previousStoreState,
-      storeObservers = []
+      storeObservers = [],
+      store = configurables.to(createProperty(storeObservers, storeState))
 
-  const updateStore = (name, reducerObservers = [], transformer, ...args) => {
+  const updateStore = (name, transformer, ...args) => {
     if (configurables.debug) {
-      previousStoreState =  JSON.parse(JSON.stringify(storeState))
+      previousStoreState = cloneDeep(storeState)
     }
 
-    Promise.all(args).then((data) => {
-      const newStoreState = transformer(storeState, ...data)
+    const newStoreState = transformer(storeState, ...args)
 
-      if (configurables.debug) {
-        if (storeState === newStoreState && !deepEqual(previousStoreState, newStoreState)) {
-          console.warn(`Possible accidental mutation by reducer: ${name || 'unnamed'}`, { previousState: previousStoreState, state: newStoreState })
-        }
+    if (configurables.debug) {
+      if (storeState === newStoreState && !deepEqual(previousStoreState, newStoreState)) {
+        console.warn(`Possible accidental mutation in reducer: ${name || 'unnamed'}`, { previousState: previousStoreState, state: newStoreState })
       }
+    }
 
-      storeState = newStoreState
+    storeState = newStoreState
 
-      storeObservers.concat(reducerObservers).forEach((observer) => {
-        observer.next(storeState)
-      })
+    storeObservers.forEach((observer) => {
+      observer.next(storeState)
     })
   }
 
-  let store = configurables.to(new Observable((observer) => {
-    storeObservers.push(observer)
-    observer.next(storeState)
-
-    return removeObserver(storeObservers, observer)
-  }))
-
   store.reducers = Object.assign({}, ...Object.keys(reducers)
     .map((key) => {
-      let reducerObservers = []
 
-      const { name, observable, transformer } = reducers[key],
-            update = (...args) => updateStore(name, reducerObservers, transformer, ...args)
+      const { source, transformer } = reducers[key],
+            update = (...args) => updateStore(name, transformer, ...args)
 
-      if (observable) {
-        configurables.from(observable).subscribe({
-          next(value) {
-            update(value)
-          }
-        })
-      }
-
-      if (name) {
-        let reducerFunc = (...args) => {
-          if (observable) {
-            throw new Error('Observing reducer is not callable')
-          }
-          update(...args)
-        }
-
-        let reducerObservable = new Observable((observer) => {
-          reducerObservers.push(observer)
-
-          return removeObserver(reducerObservers, observer)
+      if (typeof source === 'string') {
+        return { [source]: (...args) => update(...args) }
+      } else {
+        configurables.from(source).subscribe({
+          next: (value) => update(value)
         })
 
-        return { [name]: configurables.withCallable(configurables.to(reducerObservable), reducerFunc) }
+        return false
       }
     })
     .filter(Boolean))
@@ -148,54 +130,29 @@ const create = (initialState, ...reducers) => {
   return store
 }
 
-const reducer = (...args) => {
-  const name = (typeof args[0] === 'string') ? args[0] : undefined,
-        observable = find(args, isObservable),
-        transformer = last(args)
-
-  if (typeof transformer !== 'function' || 0 >= args.length > 3 || ([2,3].indexOf(args.length) !== -1 && (!name && !observable))) {
-    throw new Error('reducers should be of format reducer([name?, [observable?]], reducerF)')
+const reducer = (source, transformer) => {
+  if (typeof transformer !== 'function' || (typeof source !== 'string' && !isObservable(source))) {
+    throw new Error('reducers should be of format reducer([source?], reducerF)')
   }
 
-  return { name, observable, transformer }
+  return { source, transformer }
 }
 
-const action = (...args) => {
-  let observers = []
+const action = (actionF) => {
+  if (typeof actionF !== 'function') {
+    throw new Error('actions should be of format action(actionF)')
+  }
 
-  const observable = find(args, isObservable),
-        transformer = last(args),
-        update = (...args) => {
-          const actionValue = transformer(...args)
+  const update = (...args) => {
+          const actionValue = actionF(...args)
           observers.forEach((observer) => {
             observer.next(actionValue)
           })
         }
 
-  if (typeof transformer !== 'function' || 0 >= args.length > 2) {
-    throw new Error('actions should be of format action([observable?], actionF)')
-  }
-
-  let actionFunc = (...args) => {
-    if (observable) {
-      throw new Error('Observing action is not callable')
-    }
-    update(...args)
-  }
-
-  let actionObservable = new Observable((observer) => {
-    observers.push(observer)
-
-    return removeObserver(observers, observer)
-  })
-
-  if (observable) {
-    configurables.from(observable).subscribe({
-      next(value) {
-        update(value)
-      }
-    })
-  }
+  let observers = [],
+      actionFunc = (...args) => update(...args),
+      actionObservable = createStream(observers)
 
   return configurables.withCallable(configurables.to(actionObservable), actionFunc)
 }

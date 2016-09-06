@@ -18,7 +18,7 @@ Reswap aims to be simple yet scalable.
 - **Works with existing FRP libraries out of the box**, such as [Kefir](https://rpominov.github.io/kefir/), [RXJS](http://reactivex.io/) and [Most](https://github.com/cujojs/most). If it supports ES Observables, it works. Other FRP libraries are also interoperable with small amount of glue code.
 - **Focus on immutable data** but since JavaScript has no immutable API, it is not enforced and works with mutable state as well.
 - **Debug mode** which will tell if you are accidentally mutating state in or out of your reducers.
-- **No mandatory actions**, the idea is to avoid unnecessary granular code and have as little boilerplate as possible. Actions make sense if you have multiple sources interested in some event, otherwise you can just directly update your store. This usually means having multiple stores listening to an action or wanting side-effects as reactions to actions. Reswap comes with a simple helper for creating actions. Much like stores, they are simply observables which you can push values to.
+- **No mandatory actions**, the idea is to avoid unnecessary granular code and have as little boilerplate as possible. Actions make sense if you have multiple sources interested in any given event, otherwise you can just directly update your store. Wanting actions usually means having multiple interested stores or needing side-effects as reactions to said actions. Reswap actions are simply observables which you can push values to.
 - **Application state** is easily built from multiple reactive stores, and it scales better and is easier to optimize than a single-store approach, still giving all the same benefits due to being built on observables. Your reactive stores can be as large or as small as you want to.
 
 ## How it looks
@@ -39,13 +39,12 @@ const deleteTodos = (currentState, deletableTodos) => {
 const store = {
     todos: create([], //give initial value to your store
         //use reducer to listen to observable source, todos are added to store as it emits new values
-        reducer('todosFromServer', serverTodos$, addTodo),
+        reducer(todosFromServer$, addTodo),
 
-        //you can push data to reducer with no observable source as shown in consumer.js
+        //you can also create named reducers which you can push data directly to, as shown in consumer.js
         reducer('todosFromClient', addTodo),
 
-        //you can omit the name if there is no need to observe or call the reducer from outside
-        //also notice "merge" helper which can be used to listen to multiple observable sources
+        //it's easy to combine together multiple observable sources as well
         reducer(merge(deleteTodo$, deleteTodos$), deleteTodos)
     )
 }
@@ -59,21 +58,12 @@ export default store
  */
 import store from './store'
 
-//subscribe to store, instantly getting current state and get new states as store is updated
+//subscribe to store, instantly getting current state as well
 store.subscribe({
     next: (state) => console.log(state)
 })
 
-//you can also directly subscribe to a specific reducer (which has no current state)
-//can be useful for reducer specific side-effects
-store.reducers.todosFromServer.subscribe({
-    next: (value) => console.log('value from server')
-})
-
-//you can push data to non-observable reducers, useful when working with imperative APIs
-//this is equivalent to dispatch() calls in non-reactive flux implementations
-store.reducers.todosFromClient([{ id: 1, name: 'Todo from client' }])
-
-//you can also subscribe to a pushable reducer
-store.reducers.todosFromClient.subscribe(...)
+//you can push data to named reducers, useful when working with imperative APIs
+//this is often equivalent to calling dispatch() in flux implementations
+store.reducers.todosFromClient({ id: 1, name: 'Todo from client' })
 ```
