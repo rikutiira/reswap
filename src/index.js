@@ -83,7 +83,7 @@ const first = (arr = []) => arr[0],
         return value
       }
 
-const create = (initialState, ...reducers) => {
+const store = (initialState, ...reducers) => {
   let storeState = initialState,
       previousStoreState,
       storeObservers = [],
@@ -127,6 +127,8 @@ const create = (initialState, ...reducers) => {
     })
     .filter(Boolean))
 
+  store.get = () => storeState
+
   return store
 }
 
@@ -167,6 +169,6 @@ const config = (conf) => {
   configurables.debug = conf.debug || configurables.debug
 }
 
-export default { create, reducer, action, merge, combine, config }
+export default { store, reducer, action, merge, combine, config }
 
-export { create, reducer, action, merge, combine, config }
+export { store, reducer, action, merge, combine, config }

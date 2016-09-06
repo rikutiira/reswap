@@ -20,7 +20,7 @@ reswap.config({
     to: (observable) => Kefir.fromESObservable(observable), //all returned observables by reswap are automatically converted to kefir streams
 })
 
-const store = reswap.create({ foo: '', bar: { baz: '' }, plus1: 0, plus2: 0 },
+const store = reswap.store({ foo: '', bar: { baz: '' }, plus1: 0, plus2: 0 },
     reducer('foo', (currentState, value, value2) => assign(currentState, { foo: currentState.foo + value + value2 })),
     reducer(combine([testObservable, testObservable2]), (currentState, value) =>
         assign(currentState, { bar: assign(currentState.bar, { baz: value }) })),

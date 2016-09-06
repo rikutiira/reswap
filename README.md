@@ -27,43 +27,71 @@ Reswap aims to be simple yet scalable.
 /**
  * store.js
  */
-import { create, reducer, combine } from 'reswap'
+import { store, reducer, action } from 'reswap'
 
-const addTodo = (currentState, todo) => currentState.concat(todo)
-const deleteTodos = (currentState, deletableTodos) => {
-    const todos = [].concat(deletableTodos)
-    return currentState.filter((todo) => todos.indexOf(todo.id) === -1)
+const actions = {
+    saveTodos$: action((todos) => todos.map((todo) =>
+        Object.assign({}, todo, { saved: true })
+    ))
+}
+
+const reducers = {
+    addTodo: (currentState, todo) => currentState.concat(todo),
+    saveTodos: (currentState, todos) => todos
 }
 
 //simply use object literals for application state
 const store = {
-    todos: create([], //give initial value to your store
+    todos$: store([], //give initial value to your store
         //use reducer to listen to observable source, todos are added to store as it emits new values
-        reducer(todosFromServer$, addTodo),
+        reducer(todosFromServer$, reducers.addTodo),
 
         //you can also create named reducers which you can push data directly to, as shown in consumer.js
-        reducer('todosFromClient', addTodo),
+        reducer('todosFromClient', reducers.addTodo),
 
-        //it's easy to combine together multiple observable sources as well
-        reducer(merge(deleteTodo$, deleteTodos$), deleteTodos)
+        //actions are simply observables, you can observe to them like all other observables
+        reducer(actions.saveTodos$, reducers.saveTodos)
     )
 }
 
 export default store
+
+export actions
 ```
 
 ```js
 /**
  * consumer.js
  */
-import store from './store'
+import store, { actions } from './store'
 
 //subscribe to store, instantly getting current state as well
-store.subscribe({
-    next: (state) => console.log(state)
+store.todos$.subscribe({
+    next: (state) => {
+        console.log(state)
+    }
 })
 
-//you can push data to named reducers, useful when working with imperative APIs
-//this is often equivalent to calling dispatch() in flux implementations
-store.reducers.todosFromClient({ id: 1, name: 'Todo from client' })
+//you can push data to store via named reducers, useful when working with imperative APIs
+store.reducers.todosFromClient({ id: 1, name: 'Todo from client', saved: false })
+
+//actions are observables but also callable functions. you push data to actions and observe them elsewhere.
+actions.saveTodos$(store.todos$.get())
 ```
+
+```js
+/**
+ * reactions.js
+ */
+
+import { actions } from './store'
+
+//here we observe an action and send a server request whenever data is pushed into it
+actions.saveTodos$.subscribe({
+    next: (todos) => fetch('/api/save-todos/', { body: todos })
+})
+```
+
+## License
+
+MIT
