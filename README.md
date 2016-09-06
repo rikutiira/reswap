@@ -69,11 +69,9 @@ export { actions }
  */
 import store, { actions } from './store'
 
-//subscribe to store, instantly getting current state as well
+//subscribe to store, instantly getting current state and all subsequent states
 store.todos$.subscribe({
-    next: (state) => {
-        console.log(state)
-    }
+    next: (state) => console.log(state)
 })
 
 //you can push data to store via named reducers, useful when working with imperative APIs
