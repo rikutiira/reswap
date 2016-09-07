@@ -31,7 +31,7 @@ store.subscribe({
                            //after: 'hello reswap'
 
         if (state === 'hello world') {
-            //push value to named reducer which updates the store
+            //push value directly to named reducer, causing state to update
             store.reducers.replace('world', 'reswap')
         }
     }
