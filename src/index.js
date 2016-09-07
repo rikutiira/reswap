@@ -19,6 +19,7 @@ const first = (arr = []) => arr[0],
       last = (arr = []) => arr[arr.length-1],
       find = (arr = [], f) => arr.filter(f)[0],
       isObjOrFunc = (obj) => obj && (typeof obj === 'object' || typeof obj === 'function'),
+      isPromise = (p) => p && typeof p === 'object' && typeof p.then === 'function',
       isESObservable = (obs) => isObjOrFunc(obs) && Boolean(obs[symbolObservable]),
       isZenObservable = (obs) => isObjOrFunc(obs) && Boolean(Observable.prototype['@@observable'] === obs['@@observable']),
       isObservable = (obs) => isESObservable(obs) || isZenObservable(obs),
@@ -35,6 +36,11 @@ const first = (arr = []) => arr[0],
         observer.next(currentValue)
         return removeObserver(observers, observer)
       }),
+      emit = (observers, value) => {
+        observers.forEach((observer) => {
+          observer.next(value)
+        })
+      },
       combineObservables = (observables) => {
         let observers = [],
             currentValues = new Map()
@@ -46,9 +52,7 @@ const first = (arr = []) => arr[0],
 
               if (currentValues.size === observables.length) {
                 const values = observables.map((observable) => currentValues.get(observable))
-                observers.forEach((observer) => {
-                  observer.next(values)
-                })
+                emit(observers, values)
               }
             }
           })
@@ -62,9 +66,7 @@ const first = (arr = []) => arr[0],
         observables.forEach((observable) => {
           configurables.from(observable).subscribe({
             next(value) {
-              observers.forEach((observer) => {
-                observer.next(value)
-              })
+              emit(observers, value)
             }
           })
         })
@@ -103,10 +105,7 @@ const store = (initialState, ...reducers) => {
     }
 
     storeState = newStoreState
-
-    storeObservers.forEach((observer) => {
-      observer.next(storeState)
-    })
+    emit(storeObservers, storeState)
   }
 
   store.reducers = Object.assign({}, ...Object.keys(reducers)
@@ -146,11 +145,12 @@ const action = (actionF) => {
   }
 
   const update = (...args) => {
-          const actionValue = actionF(...args)
-          observers.forEach((observer) => {
-            observer.next(actionValue)
-          })
-        }
+    const actionValue = actionF(...args)
+
+    isPromise(actionValue)
+      ? actionValue.then((resolvedValue) => emit(observers, resolvedValue))
+      : emit(observers, actionValue)
+  }
 
   let observers = [],
       actionFunc = (...args) => update(...args),

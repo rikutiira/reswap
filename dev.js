@@ -4,7 +4,9 @@ import reswap, { reducer, action, merge, combine } from './src'
 
 const assign = (...values) => Object.assign({}, ...values)
 
-const testAction = action((data) => data + 1)
+const testAction = action((data) => new Promise((resolve) => {
+    setTimeout(() => resolve(data + 1), 5000)
+}))
 
 const testObservable = Kefir.sequentially(3000, ['bar', 'babar', 'babazbar'])
 const testObservable2 = Kefir.sequentially(4000, [1, 2, 3, 4, 5])
@@ -39,7 +41,9 @@ setTimeout(() => {
 }, 500)
 
 store.onValue((value) => {
-    console.log(JSON.parse(JSON.stringify(value)))
+    const node = document.createElement('pre')
+    node.appendChild(document.createTextNode(JSON.stringify(value)))
+    document.body.appendChild(node)
 })
 
 testAction(1)
