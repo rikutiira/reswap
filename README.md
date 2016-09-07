@@ -4,27 +4,20 @@
 
 **Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable)**, enabling powerful asynchronous patterns out of the box. It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
-Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. As it follows the predictable model of declaring how state is allowed to be changed, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens.
+Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. As it follows the predictable model of declaring how state is allowed to be changed, it is **not** built on the need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens.
 
 ```js
 
 import { store, reducer } from 'reswap'
-import Rx from 'rxjs/Rx'
 
 //just a normal Observable following ECMAScript spec
 const hello = new Observable((observer) => {
-    setTimeout(() => observer.next('hello'), 1000)
+    setTimeout(() => observer.next('hello world'), 1000)
 })
-
-//RXJS Observable
-const world = Rx.Observable.just('world').delay(2000)
 
 const store = store('', //give initial value to store
     //reducers listen to observables and update store as they emit new values
     reducer(hello, (currentState, value) => value),
-
-    //reswap interops with existing Observable/FRP libraries
-    reducer(world, (currentState, value) => `${currentState} ${value}`),
 
     //named reducer can be used to update store imperatively
     reducer('replace', (currentState, word, newWord) => currentState.replace(word, newWord))
@@ -34,8 +27,7 @@ const store = store('', //give initial value to store
 store.subscribe({
     next: (state) => {
         console.log(state) //0ms: ''
-                           //1000ms: 'hello'
-                           //2000ms: 'hello world'
+                           //1000ms: 'hello world'
                            //after: 'hello reswap'
 
         if (state === 'hello world') {
