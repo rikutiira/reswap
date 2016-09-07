@@ -24,7 +24,7 @@ const store = store('', //give initial value to store
     reducer(hello, (currentState, value) => value),
 
     //reswap interops with existing Observable/FRP libraries
-    reducer(world, (currentState, value) => `${currentState} ${value})
+    reducer(world, (currentState, value) => `${currentState} ${value}),
 
     //named reducer can be used to update store imperatively
     reducer('replace', (currentState, word, newWord) => currentState.replace(word, newWord))
