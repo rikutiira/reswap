@@ -2,11 +2,9 @@
 
 ### Reswap is still in early development, 0.1.x is not a stable release yet!
 
-**Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable).** It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
+**Reswap is a fully reactive state container built on the current [observable proposal](https://github.com/tc39/proposal-observable)**, enabling powerful asynchronous patterns out of the box. It is inspired by Clojure's take on mutable state, atoms, and Reagent's (ClojureScript's React Wrapper) reactive atoms.
 
-Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the predictable state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. Another major difference is that Reswap is built on observables, enabling powerful asynchronous patterns out of the box without having to learn any library code tailored for Reswap.
-
-Being fully reactive, it's inspired by other reactive state containers but with two important points. One, as mentioned, it's built on observable spec and supports existing Observable/FRP libraries out of the box. Two, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens. Immutable values are easier to reason about and scale better.
+Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. As it follows the predictable model of declaring how state is allowed to be changed, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens.
 
 ```js
 import { store, reducer } from 'reswap'
@@ -21,6 +19,7 @@ const store = store('hello', //give initial value to store
     reducer(world, (currentState, value) => `${currentState} ${value}`)
 )
 
+//store created by reswap is also an Observable
 store.subscribe({
     next: (state) => {
         console.log(state) //0ms: 'hello', 1000ms: 'hello world'
