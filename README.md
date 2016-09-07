@@ -33,8 +33,10 @@ const store = store('', //give initial value to store
 //store created by reswap is also an Observable
 store.subscribe({
     next: (state) => {
-        console.log(state)
-        //0ms: '', 1000ms: 'hello', 2000ms: 'hello world', after: 'hello reswap'
+        console.log(state) //0ms: ''
+                           //1000ms: 'hello'
+                           //2000ms: 'hello world'
+                           //after: 'hello reswap'
 
         if (state === 'hello world') {
             //push value to named reducer which updates the store
