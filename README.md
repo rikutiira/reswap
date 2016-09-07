@@ -7,22 +7,39 @@
 Current popular JavaScript state containers have comparably a lot of boilerplate or depend on reacting to mutable state. Reswap follows the state model made popular by Redux but aims to simplify it by reducing boilerplate and decreasing the amount of concepts to learn. As it follows the predictable model of declaring how state is allowed to be changed, it is **not** built on need to mutate objects, as mutation introduces complexity, is error-prone and is especially troublesome in asynchronous and concurrent programs. You cannot control who mutates what, and you cannot track where and when it happens.
 
 ```js
+
 import { store, reducer } from 'reswap'
+import Rx from 'rxjs/Rx'
 
 //just a normal Observable following ECMAScript spec
-const world = new Observable((observer) => {
-    setTimeout(() => observer.next('world'), 1000)
+const hello = new Observable((observer) => {
+    setTimeout(() => observer.next('hello'), 1000)
 })
 
-const store = store('hello', //give initial value to store
+//RXJS Observable
+const world = Rx.Observable.just('world').delay(2000)
+
+const store = store('', //give initial value to store
     //reducers listen to observables and update store as they emit new values
-    reducer(world, (currentState, value) => `${currentState} ${value}`)
+    reducer(hello, (currentState, value) => value),
+
+    //reswap interops with existing Observable/FRP libraries
+    reducer(world, (currentState, value) => `${currentState} ${value})
+
+    //named reducer can be used to update store imperatively
+    reducer('replace', (currentState, word, newWord) => currentState.replace(word, newWord))
 )
 
 //store created by reswap is also an Observable
 store.subscribe({
     next: (state) => {
-        console.log(state) //0ms: 'hello', 1000ms: 'hello world'
+        console.log(state)
+        //0ms: '', 1000ms: 'hello', 2000ms: 'hello world', after: 'hello reswap'
+
+        if (state === 'hello world') {
+            //push value to named reducer which updates the store
+            store.reducers.replace('world', 'reswap')
+        }
     }
 })
 ```
